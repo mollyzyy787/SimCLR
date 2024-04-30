@@ -1,10 +1,8 @@
-# SimCLR
+# Fine-tuned SimCLR
 PyTorch implementation of SimCLR: A Simple Framework for Contrastive Learning of Visual Representations by T. Chen et al.
-Including support for:
-- Distributed data parallel training
-- Global batch normalization
-
 [Link to paper](https://arxiv.org/pdf/2002.05709.pdf)
+
+This repo fine-tunes the SimCLR model for a specific classification task for this [Roboflow dataset](https://universe.roboflow.com/yaid-pzikt/firefighting-device-detection/dataset/5)
 
 ### Setup
 Clone this repository, then create a conda virtual environment using the `requirement.txt` file:
@@ -28,6 +26,8 @@ projection_dim: 64
 optimizer: "Adam" 
 weight_decay: 1.0e-6 
 temperature: 0.5
+
+logistic_epochs: 20
 ```
 According to the original paper, temperature = 0.5 is optimal for small batch sizes. (Here batch size is 32 because of computation constraints)
 
@@ -42,6 +42,7 @@ python curate_dataset.py
 ```
 python linear_evaluation.py --model_path=. --epoch_num=100 --resnet=resnet18 --logistic_batch_size=32
 ```
+The final linear classifier is trained for 20 epochs. 
 The console outputs are the following: 
 ```
 n_features:  512
@@ -91,15 +92,23 @@ validation_accuracies:  [0.3907620614035088, 0.49280427631578944, 0.564898574561
 
 ![Loss vs. Epoch](train_losses_plot.png "Loss vs. Epoch")
 
-
+Final Testing Loss: 0.8388     
+Accuracy: 0.7902
 
 ### Optional future experiments
 
-#### Train/Finetune entire model
+1. Try a bigger projection head dimension
+Comparing the validation loss vs. training loss, there is no overfitting issues. The 
+projection embedding can be increased (currently projection_dim = 64, which is relatively low dimension especially considering the number of classes is 40, I would try 128 or 256)
+
+2. Try LARS optimizer instead of Adam, as it is suggested in the original paper. 
+
+3.  Train/Finetune entire model
 ```
 python main.py --dataset FDD
 ```
 
+4. Learning rate, weight decay can be tuned if the performance stops improving. 
 
 
 
