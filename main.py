@@ -76,6 +76,11 @@ def main(gpu, args):
             download=True,
             transform=TransformsSimCLR(size=args.image_size),
         )
+    elif args.dataset == "FDD":
+        train_dir = os.path.join(args.dataset_dir, "train")
+        train_annot = os.path.join(train_dir, "_annotations.coco.json")
+        train_dataset = torchvision.datasets.CocoDetection(train_dir, train_annot, 
+                                                           transform=TransformsSimCLR(size=args.image_size))
     else:
         raise NotImplementedError
 
